@@ -7,15 +7,20 @@ const cors = require('cors');
 const Tesseract = require('tesseract.js');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors());
+// Middleware - Order matters!
+app.use(cors({
+  origin: '*',
+  credentials: false
+}));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
+// Serve static files BEFORE API routes
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Multer setup for file uploads
+// Multer setup
 const upload = multer({ 
   storage: multer.memoryStorage(),
   limits: { fileSize: 50 * 1024 * 1024 }
@@ -173,18 +178,15 @@ function parseNoticeDetails(text) {
   const lines = text.split('\n');
   const fullText = text.toUpperCase();
   
-  // Detect notice type
   let noticeType = 'Unclear';
   if (fullText.includes('CGST') || fullText.includes('SGST')) noticeType = 'GST';
   else if (fullText.includes('INCOME TAX')) noticeType = 'Income Tax';
   else if (fullText.includes('TDS') || fullText.includes('TAX DEDUCTED')) noticeType = 'TDS';
   
-  // Detect section
   let section = '';
   const sectionMatch = text.match(/Section\s+(\d+[A-Z]?)/i);
   if (sectionMatch) section = 'Section ' + sectionMatch[1];
   
-  // Extract basic info
   const noticeNumberMatch = text.match(/(?:Notice|No\.?)\s+([A-Z0-9\/\-]+)/i);
   const noticeNumber = noticeNumberMatch ? noticeNumberMatch[1] : 'Not found';
   
@@ -197,7 +199,6 @@ function parseNoticeDetails(text) {
   const allegationMatch = text.match(/(?:regarding|on account of|alleges?|ground)\s+([^.\n]{20,100})/i);
   const allegation = allegationMatch ? allegationMatch[1].trim() : 'Not clearly stated';
   
-  // Extract amounts
   const amountMatches = text.match(/Rs\.?\s+([0-9,]+(?:\.[0-9]{2})?)/gi);
   const amounts = amountMatches ? amountMatches.map(m => m.replace(/[^0-9.,]/g, '')) : [];
   
@@ -224,7 +225,7 @@ function parseNoticeDetails(text) {
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Backend is running' });
+  res.json({ status: 'ok', message: 'Backend is running on Render' });
 });
 
 // Extract from uploaded file
@@ -257,7 +258,7 @@ app.post('/api/extract', upload.single('file'), async (req, res) => {
 });
 
 // Generate reply from extracted notice
-app.post('/api/reply', express.json(), (req, res) => {
+app.post('/api/reply', (req, res) => {
   try {
     const { notice, figures, instructions, template_key } = req.body;
     
@@ -268,14 +269,12 @@ app.post('/api/reply', express.json(), (req, res) => {
     const template = TEMPLATES[template_key] || TEMPLATES.generic;
     let draft = template.skeleton;
     
-    // Replace placeholders
     draft = draft.replace(/\[Notice No\.\]/g, notice.notice_number || 'Not provided');
     draft = draft.replace(/\[Date\]/g, notice.date_of_notice || 'Not provided');
     draft = draft.replace(/\[FY\/period\]/g, notice.financial_year_period || 'Not provided');
     draft = draft.replace(/\[amount\]/g, figures[0]?.notice_amount || 'Not provided');
     draft = draft.replace(/\[ground alleged[^\]]*\]/g, notice.allegation_summary || 'Not stated');
     
-    // Add reconciliation section
     if (figures && figures.length > 0) {
       let reconciliation = '\n\n   Reconciliation of figures:';
       figures.forEach((f, i) => {
@@ -297,7 +296,7 @@ app.post('/api/reply', express.json(), (req, res) => {
 });
 
 // Quick reply from pasted text
-app.post('/api/quick-reply', express.json(), (req, res) => {
+app.post('/api/quick-reply', (req, res) => {
   try {
     const { notice_text, instructions, template_key } = req.body;
     
@@ -325,12 +324,20 @@ app.post('/api/quick-reply', express.json(), (req, res) => {
   }
 });
 
-// Root route
+// Root route - serve index.html
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`\n✓ Notice Reply Desk Backend running on port ${PORT}\n`);
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route not found' });
 });
+
+// Start server
+const server = app.listen(PORT, () => {
+  console.log(`✓ Notice Reply Tool Backend running on port ${PORT}`);
+  console.log(`  URL: https://eply-tool.onrender.com`);
+});
+
+server.keepAliveTimeout = 65000;
