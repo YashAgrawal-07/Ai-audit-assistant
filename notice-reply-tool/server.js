@@ -7,15 +7,19 @@ const cors = require('cors');
 const Tesseract = require('tesseract.js');
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Multer setup for file uploads
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 }
+});
 
 // ========== TEMPLATES ==========
 const TEMPLATES = {
@@ -321,8 +325,12 @@ app.post('/api/quick-reply', express.json(), (req, res) => {
   }
 });
 
+// Root route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Start server
 app.listen(PORT, () => {
-  console.log(`\n✓ Notice Reply Desk Backend running on http://localhost:${PORT}`);
-  console.log(`  Frontend: Open http://localhost:${PORT} in your browser\n`);
+  console.log(`\n✓ Notice Reply Desk Backend running on port ${PORT}\n`);
 });
