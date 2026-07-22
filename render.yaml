@@ -1,0 +1,18 @@
+{
+  "services": [
+    {
+      "type": "web",
+      "name": "notice-reply-tool",
+      "plan": "free",
+      "runtime": "node",
+      "buildCommand": "cd notice-reply-tool && npm install",
+      "startCommand": "cd notice-reply-tool && node server.js",
+      "envVars": [
+        {
+          "key": "NODE_ENV",
+          "value": "production"
+        }
+      ]
+    }
+  ]
+}
