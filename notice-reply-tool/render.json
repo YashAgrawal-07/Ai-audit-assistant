@@ -1,0 +1,27 @@
+{
+  "$schema": "https://render.com/deploy-button/schema.json",
+  "name": "Notice Reply Tool",
+  "description": "GST/Income Tax/TDS Notice Response Tool with AI-powered reply generation",
+  "logo": "https://www.gstscan.com/static/media/logo.7f5b5c5b.svg",
+  "plan": "free",
+  "services": [
+    {
+      "type": "web",
+      "name": "notice-reply-tool",
+      "plan": "free",
+      "runtime": "node",
+      "buildCommand": "npm install",
+      "startCommand": "node server.js",
+      "envVars": [
+        {
+          "key": "NODE_ENV",
+          "value": "production"
+        },
+        {
+          "key": "PORT",
+          "value": "3000"
+        }
+      ]
+    }
+  ]
+}
