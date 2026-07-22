@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Case File — Notice Response Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#16233F;
+    --paper:#EDEFE7;
+    --card:#FFFFFF;
+    --brass:#A9814A;
+    --rust:#A73B2C;
+    --teal:#1F5C52;
+    --line:#D8D6C7;
+    --muted:#5B6472;
+    --display:'Source Serif 4', serif;
+    --body:'IBM Plex Sans', sans-serif;
+    --mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:var(--body); line-height:1.5;
+  }
+  .wrap{max-width:980px; margin:0 auto; padding:32px 24px 80px;}
+
+  header.masthead{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    border-bottom:3px solid var(--ink); padding-bottom:16px; margin-bottom:28px;
+  }
+  header.masthead h1{
+    font-family:var(--display); font-weight:700; font-size:28px; margin:0;
+    letter-spacing:0.3px;
+  }
+  header.masthead .sub{
+    font-family:var(--mono); font-size:12px; color:var(--muted); text-transform:uppercase;
+    letter-spacing:1.5px;
+  }
+  header.masthead .file-no{
+    font-family:var(--mono); font-size:12px; color:var(--muted); text-align:right;
+  }
+
+  .tabs{
+    display:flex; gap:2px; margin-bottom:0; border-bottom:1px solid var(--line);
+  }
+  .tab{
+    font-family:var(--mono); font-size:12.5px; letter-spacing:0.4px; text-transform:uppercase;
+    padding:11px 18px; background:#E4E6DC; color:var(--muted); cursor:pointer;
+    border:1px solid var(--line); border-bottom:none; border-radius:6px 6px 0 0;
+    position:relative; top:1px;
+  }
+  .tab.active{ background:var(--card); color:var(--ink); font-weight:600; border-bottom:1px solid var(--card); }
+  .tab .num{ color:var(--brass); margin-right:6px; }
+
+  .panel{
+    background:var(--card); border:1px solid var(--line); border-top:none;
+    padding:28px; border-radius:0 0 8px 8px; min-height:340px;
+  }
+  .panel h2{
+    font-family:var(--display); font-size:20px; margin:0 0 6px;
+  }
+  .hint{ color:var(--muted); font-size:13.5px; margin:0 0 20px; }
+
+  .dropzone{
+    border:1.5px dashed var(--line); border-radius:8px; padding:36px 20px;
+    text-align:center; cursor:pointer; transition:border-color .15s;
+  }
+  .dropzone:hover, .dropzone.drag{ border-color:var(--brass); }
+  .dropzone .big{ font-family:var(--display); font-size:16px; margin-bottom:6px; }
+  .dropzone .small{ font-size:12.5px; color:var(--muted); }
+
+  input[type=file]{display:none;}
+
+  select, textarea, input[type=text], input[type=number]{
+    font-family:var(--body); font-size:14px; border:1px solid var(--line);
+    border-radius:5px; padding:9px 11px; width:100%; color:var(--ink); background:#fff;
+  }
+  textarea{ resize:vertical; }
+  label.field-label{
+    font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.6px;
+    color:var(--muted); display:block; margin-bottom:6px;
+  }
+
+  button.btn{
+    font-family:var(--body); font-weight:600; font-size:13.5px; cursor:pointer;
+    padding:11px 20px; border-radius:6px; border:1px solid var(--ink); background:var(--ink);
+    color:#fff; letter-spacing:0.2px;
+  }
+  button.btn:disabled{ opacity:.5; cursor:not-allowed; }
+  button.btn.ghost{ background:transparent; color:var(--ink); }
+  button.btn.brass{ background:var(--brass); border-color:var(--brass); }
+  button.btn.small{ padding:6px 12px; font-size:12px; }
+
+  .row{ display:flex; gap:14px; }
+  .col{ flex:1; }
+
+  .stamp{
+    display:inline-block; font-family:var(--mono); font-weight:600; font-size:12px;
+    letter-spacing:1.2px; text-transform:uppercase; border:2px solid var(--rust);
+    color:var(--rust); padding:5px 12px; border-radius:3px; transform:rotate(-2deg);
+    background:rgba(167,59,44,0.04);
+  }
+  .stamp.ok{ border-color:var(--teal); color:var(--teal); background:rgba(31,92,82,0.04); }
+  .stamp.neutral{ border-color:var(--muted); color:var(--muted); background:transparent; }
+
+  .meta-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:14px 24px; margin:20px 0 24px;
+  }
+  .meta-item .k{ font-family:var(--mono); font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px;}
+  .meta-item .v{ font-size:14.5px; margin-top:3px; }
+
+  table.figures{ width:100%; border-collapse:collapse; margin-top:6px; }
+  table.figures th{
+    font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.5px;
+    color:var(--muted); text-align:left; border-bottom:1.5px solid var(--ink); padding:8px 8px;
+  }
+  table.figures td{ border-bottom:1px solid var(--line); padding:6px 8px; vertical-align:middle;}
+  table.figures input{ border:1px solid transparent; background:transparent; padding:5px 6px; font-family:var(--mono); font-size:13.5px;}
+  table.figures input:hover, table.figures input:focus{ border-color:var(--line); background:#fff; outline:none; }
+  table.figures .diff-pos{ color:var(--rust); font-family:var(--mono); font-weight:600;}
+  table.figures .diff-zero{ color:var(--teal); font-family:var(--mono); font-weight:600;}
+  table.figures td.rowlabel input{ font-family:var(--body); }
+
+  .status-dot{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px;}
+  .status-dot.rust{ background:var(--rust);} .status-dot.teal{ background:var(--teal);}
+
+  .loading{ font-family:var(--mono); font-size:12.5px; color:var(--brass); }
+  .loading::after{ content:''; display:inline-block; width:10px; }
+
+  .error-box{
+    border:1px solid var(--rust); background:rgba(167,59,44,0.06); color:var(--rust);
+    padding:10px 14px; border-radius:6px; font-size:13px; margin-top:10px;
+  }
+
+  .reply-box{
+    width:100%; min-height:340px; font-family:var(--body); font-size:14px; line-height:1.65;
+    border:1px solid var(--line); border-radius:6px; padding:20px;
+  }
+
+  .precedent-card{
+    border:1px solid var(--line); border-radius:6px; padding:14px 16px; margin-bottom:10px;
+    display:flex; justify-content:space-between; align-items:center; gap:14px;
+  }
+  .precedent-card .t{ font-size:13.5px; }
+  .precedent-card .t b{ font-family:var(--display); font-size:14.5px; }
+  .precedent-card a.btn{ text-decoration:none; white-space:nowrap; }
+
+  .disclaimer{
+    font-size:12px; color:var(--muted); border-left:3px solid var(--brass); padding:8px 12px;
+    background:#F7F5EC; margin-top:16px;
+  }
+
+  .add-row-btn{ margin-top:10px; }
+  .toolbar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .file-chip{
+    display:inline-flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12.5px;
+    background:#F7F5EC; border:1px solid var(--line); padding:6px 10px; border-radius:5px;
+  }
+  .file-chip .x{ cursor:pointer; color:var(--rust); font-weight:700; }
+
+  .settings-bar{
+    display:flex; align-items:center; gap:10px; margin-bottom:22px; padding:9px 12px;
+    background:#F7F5EC; border:1px solid var(--line); border-radius:6px;
+  }
+  .settings-bar input{ flex:1; max-width:320px; padding:6px 9px; font-family:var(--mono); font-size:12.5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <h1>Case File</h1>
+      <div class="sub">Notice Response Desk · GST / Income Tax / TDS</div>
+    </div>
+    <div class="file-no" id="fileNoDisplay">FILE NO. —</div>
+  </header>
+
+  <div class="settings-bar">
+    <label class="field-label" style="margin:0;">Backend URL</label>
+    <input type="text" id="apiBaseInput" placeholder="http://localhost:4000">
+    <span id="backendStatus" style="font-family:var(--mono); font-size:11.5px;"></span>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-tab="upload"><span class="num">01</span>Read Notice</div>
+    <div class="tab" data-tab="figures"><span class="num">02</span>Compare Figures</div>
+    <div class="tab" data-tab="reply"><span class="num">03</span>Draft Reply</div>
+    <div class="tab" data-tab="precedents"><span class="num">04</span>Precedents</div>
+    <div class="tab" data-tab="quick"><span class="num">Q</span>Quick Reply</div>
+  </div>
+
+  <!-- TAB 1: UPLOAD -->
+  <div class="panel tab-panel" id="panel-upload">
+    <h2>Read the notice</h2>
+    <p class="hint">Upload a scan (JPG/PNG) or PDF of the notice. It's read directly — nothing is stored outside this session.</p>
+
+    <div class="row" style="margin-bottom:18px;">
+      <div class="col">
+        <label class="field-label">Notice type (confirm or override)</label>
+        <select id="noticeTypeSelect">
+          <option value="auto">Auto-detect</option>
+          <option value="GST">GST</option>
+          <option value="Income Tax">Income Tax</option>
+          <option value="TDS">TDS</option>
+        </select>
+      </div>
+      <div class="col">
+        <label class="field-label">File no. / reference (your own tracking, optional)</label>
+        <input type="text" id="fileNoInput" placeholder="e.g. CLIENT-2026-014">
+      </div>
+    </div>
+
+    <div class="dropzone" id="dropzone">
+      <div class="big">Drop notice here, or click to browse</div>
+      <div class="small">PDF, JPG or PNG — single notice per upload</div>
+      <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png">
+    </div>
+    <div id="fileChipHolder" style="margin-top:12px;"></div>
+
+    <div style="margin-top:20px;">
+      <button class="btn brass" id="extractBtn" disabled>Extract key points</button>
+      <span id="extractStatus" style="margin-left:12px;"></span>
+    </div>
+    <div id="extractError"></div>
+
+    <div id="summaryBlock" style="display:none; margin-top:28px; border-top:1px solid var(--line); padding-top:22px;">
+      <div id="summaryStamp"></div>
+      <div class="meta-grid" id="metaGrid"></div>
+    </div>
+  </div>
+
+  <!-- TAB 2: FIGURES -->
+  <div class="panel tab-panel" id="panel-figures" style="display:none;">
+    <h2>Notice figures vs. your books</h2>
+    <p class="hint">Figures picked up from the notice are pre-filled on the left. Enter your book figures on the right — the difference is worked out automatically.</p>
+    <table class="figures" id="figuresTable">
+      <thead>
+        <tr>
+          <th style="width:34%;">Head / particular</th>
+          <th style="width:20%;">As per notice (₹)</th>
+          <th style="width:20%;">As per books (₹)</th>
+          <th style="width:16%;">Difference</th>
+          <th style="width:10%;"></th>
+        </tr>
+      </thead>
+      <tbody id="figuresBody"></tbody>
+    </table>
+    <button class="btn ghost small add-row-btn" id="addRowBtn">+ Add row</button>
+  </div>
+
+  <!-- TAB 3: REPLY -->
+  <div class="panel tab-panel" id="panel-reply" style="display:none;">
+    <h2>Draft the reply</h2>
+    <p class="hint">This uses the extracted notice details and your figures table. Add anything specific you want covered, then generate.</p>
+    <label class="field-label">Reply template (auto-suggested from the section detected — override if needed)</label>
+    <select id="templateSelect"></select>
+
+    <label class="field-label" style="margin-top:16px;">Anything specific to include (grounds, documents you're enclosing, request for adjournment, etc.) — optional</label>
+    <textarea id="replyInstructions" rows="3" placeholder="e.g. ITC difference is due to invoices received in the next month under Section 16(4); request 15 days to collate reconciliation."></textarea>
+    <div style="margin-top:14px;">
+      <button class="btn brass" id="generateReplyBtn">Generate draft reply</button>
+      <button class="btn ghost" id="insertSkeletonBtn">Insert blank skeleton instead</button>
+      <span id="replyStatus" style="margin-left:12px;"></span>
+    </div>
+    <div id="replyError"></div>
+    <div style="margin-top:20px;">
+      <div class="toolbar">
+        <label class="field-label" style="margin:0;">Draft (editable)</label>
+        <button class="btn ghost small" id="copyReplyBtn">Copy text</button>
+      </div>
+      <textarea class="reply-box" id="replyOutput" placeholder="Your drafted reply will appear here — edit freely before sending."></textarea>
+    </div>
+  </div>
+
+  <!-- TAB 4: PRECEDENTS -->
+  <div class="panel tab-panel" id="panel-precedents" style="display:none;">
+    <h2>Precedents &amp; references</h2>
+    <p class="hint">These are live search links into real case-law and circular databases, built from the notice's section and issue — not AI-recalled citations. Open and verify before citing any judgment in your reply.</p>
+    <div id="precedentLinks"></div>
+    <div class="disclaimer">Case law changes and AI recall of citations is unreliable, so this deliberately does not generate case names itself — it hands you a targeted search on live sources instead.</div>
+  </div>
+
+  <!-- TAB 5: QUICK -->
+  <div class="panel tab-panel" id="panel-quick" style="display:none;">
+    <h2>Quick reply from pasted text</h2>
+    <p class="hint">No upload, no table — paste the notice text (or a portion of it) and get a reply directly.</p>
+    <label class="field-label">Reply template</label>
+    <select id="quickTemplateSelect"></select>
+    <label class="field-label" style="margin-top:14px;">Notice text</label>
+    <textarea id="quickNoticeText" rows="8" placeholder="Paste the notice text here..."></textarea>
+    <label class="field-label" style="margin-top:14px;">Instructions (optional)</label>
+    <textarea id="quickInstructions" rows="2" placeholder="Anything specific you want in the reply"></textarea>
+    <div style="margin-top:14px;">
+      <button class="btn brass" id="quickReplyBtn">Generate reply</button>
+      <span id="quickStatus" style="margin-left:12px;"></span>
+    </div>
+    <div id="quickError"></div>
+    <div style="margin-top:20px;">
+      <div class="toolbar">
+        <label class="field-label" style="margin:0;">Draft (editable)</label>
+        <button class="btn ghost small" id="copyQuickBtn">Copy text</button>
+      </div>
+      <textarea class="reply-box" id="quickOutput" placeholder="Reply will appear here."></textarea>
+    </div>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
